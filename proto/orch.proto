@@ -1,0 +1,118 @@
+syntax = "proto3";
+package orch.v1;
+option go_package = "github.com/orch-protocol/orch/internal/pb;orchpb";
+
+message NodeId {
+  string id = 1;
+  string addr = 2;
+  string service = 3;
+  string version = 4;
+  bool is_leader = 5;
+  uint64 term = 6;
+}
+
+message Hello {
+  NodeId node = 1;
+  uint64 cluster_token = 2;
+  repeated string known_peers = 3;
+}
+
+message HelloAck {
+  NodeId node = 1;
+  repeated NodeId cluster_view = 2;
+}
+
+message Heartbeat {
+  NodeId node = 1;
+  uint64 timestamp = 2;
+  float cpu_usage = 3;
+  float mem_usage = 4;
+  uint32 goroutines = 5;
+}
+
+message Ping {
+  uint64 request_id = 1;
+  NodeId helper = 2;
+}
+
+message PingReq {
+  uint64 request_id = 1;
+  NodeId target = 2;
+}
+
+message PingAck {
+  uint64 request_id = 1;
+  NodeId helper = 2;
+}
+
+message PingReqAck {
+  uint64 request_id = 1;
+  NodeId target = 2;
+  bool alive = 3;
+}
+
+message GossipEnvelope {
+  uint32 ttl = 1;
+  uint64 msg_id = 2;
+  bytes payload = 3;
+}
+
+message NodeEvent {
+  enum EventType {
+    JOIN = 0;
+    LEAVE = 1;
+    DEAD = 2;
+    SUSPECT = 3;
+  }
+  EventType type = 1;
+  NodeId node = 2;
+  uint64 term = 3;
+}
+
+message ScaleSignal {
+  enum Direction {
+    OUT = 0;
+    IN = 1;
+  }
+  Direction direction = 1;
+  string service = 2;
+  uint32 delta = 3;
+  string reason = 4;
+}
+
+message RequestVote {
+  uint64 term = 1;
+  string candidate_id = 2;
+  uint64 last_log_index = 3;
+  uint64 last_log_term = 4;
+}
+
+message RequestVoteReply {
+  uint64 term = 1;
+  bool vote_granted = 2;
+}
+
+message AppendEntries {
+  uint64 term = 1;
+  string leader_id = 2;
+  uint64 prev_log_index = 3;
+  uint64 prev_log_term = 4;
+  repeated LogEntry entries = 5;
+  uint64 leader_commit = 6;
+}
+
+message AppendEntriesReply {
+  uint64 term = 1;
+  bool success = 2;
+}
+
+message LogEntry {
+  uint64 index = 1;
+  uint64 term = 2;
+  bytes command = 3;
+}
+
+message ErrorResponse {
+  uint32 code = 1;
+  string message = 2;
+}

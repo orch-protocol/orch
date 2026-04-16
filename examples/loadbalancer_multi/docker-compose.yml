@@ -1,0 +1,118 @@
+version: "3.8"
+
+services:
+  lb:
+    container_name: orch-lb
+    build:
+      context: ../..
+      dockerfile: examples/loadbalancer_multi/Dockerfile
+    environment:
+      - TYPE=lb
+      - ORCH_PORT=7945
+      - LB_PORT=8000
+      - ORCH_ADDR=lb:7945
+      - ORCH_CLUSTER_TOKEN=12345
+      - ORCH_SEEDS=
+      - ORCH_SERVER_COUNT=3
+      - ORCH_HEARTBEAT_TIMEOUT=10000ms
+      - ORCH_SUSPECT_TIMEOUT=20000ms
+      - ORCH_LOG_LEVEL=OFF
+      - ORCH_DESIRED_COUNT=3
+      - ORCH_SCALE_SERVICE=http-server
+      - ORCH_SCALE_CMD=docker start orch-server1 orch-server2 orch-server3
+      - ORCH_SCALE_INTERVAL=10s
+    ports:
+      - "8000:8000"
+      - "7945:7945"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - orch-net
+
+  server1:
+    container_name: orch-server1
+    build:
+      context: ../..
+      dockerfile: examples/loadbalancer_multi/Dockerfile
+    environment:
+      - TYPE=server
+      - PORT=8946
+      - ORCH_PORT=7946
+      - ORCH_ADDR=server1:7946
+      - ORCH_BIND_ADDR=:7946
+      - ORCH_CLUSTER_TOKEN=12345
+      - ORCH_SEEDS=lb:7945
+      - ORCH_HEARTBEAT_TIMEOUT=10000ms
+      - ORCH_SUSPECT_TIMEOUT=20000ms
+      - ORCH_LOG_LEVEL=OFF
+      - ORCH_DESIRED_COUNT=3
+      - ORCH_SCALE_SERVICE=http-server
+      - ORCH_SCALE_CMD=docker start orch-server1 orch-server2 orch-server3
+      - ORCH_SCALE_INTERVAL=10s
+      - ORCH_SERVER_COUNT=3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - orch-net
+    depends_on:
+      - lb
+
+  server2:
+    container_name: orch-server2
+    build:
+      context: ../..
+      dockerfile: examples/loadbalancer_multi/Dockerfile
+    environment:
+      - TYPE=server
+      - PORT=8946
+      - ORCH_PORT=7946
+      - ORCH_ADDR=server2:7946
+      - ORCH_BIND_ADDR=:7946
+      - ORCH_CLUSTER_TOKEN=12345
+      - ORCH_SEEDS=lb:7945
+      - ORCH_HEARTBEAT_TIMEOUT=10000ms
+      - ORCH_SUSPECT_TIMEOUT=20000ms
+      - ORCH_LOG_LEVEL=OFF
+      - ORCH_DESIRED_COUNT=3
+      - ORCH_SCALE_SERVICE=http-server
+      - ORCH_SCALE_CMD=docker start orch-server1 orch-server2 orch-server3
+      - ORCH_SCALE_INTERVAL=10s
+      - ORCH_SERVER_COUNT=3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - orch-net
+    depends_on:
+      - lb
+
+  server3:
+    container_name: orch-server3
+    build:
+      context: ../..
+      dockerfile: examples/loadbalancer_multi/Dockerfile
+    environment:
+      - TYPE=server
+      - PORT=8946
+      - ORCH_PORT=7946
+      - ORCH_ADDR=server3:7946
+      - ORCH_BIND_ADDR=:7946
+      - ORCH_CLUSTER_TOKEN=12345
+      - ORCH_SEEDS=lb:7945
+      - ORCH_HEARTBEAT_TIMEOUT=10000ms
+      - ORCH_SUSPECT_TIMEOUT=20000ms
+      - ORCH_LOG_LEVEL=OFF
+      - ORCH_DESIRED_COUNT=3
+      - ORCH_SCALE_SERVICE=http-server
+      - ORCH_SCALE_CMD=docker start orch-server1 orch-server2 orch-server3
+      - ORCH_SCALE_INTERVAL=10s
+      - ORCH_SERVER_COUNT=3
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - orch-net
+    depends_on:
+      - lb
+
+networks:
+  orch-net:
+    driver: bridge
