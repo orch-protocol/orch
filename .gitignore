@@ -2,3 +2,6 @@
 examples/loadbalancer/lb_bin
 examples/loadbalancer/server_bin
 examples/loadbalancer/scale_out.log
+
+.zig-cache
+zig-out
